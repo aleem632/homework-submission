@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Homework Submission</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --ink: #1a1a2e;
+      --ink-soft: #4a4a6a;
+      --ink-muted: #8888aa;
+      --paper: #faf9f5;
+      --paper-warm: #f3efe5;
+      --accent: #c84b2f;
+      --accent-light: #f5ede9;
+      --accent-dark: #8c2f18;
+      --success: #2d6a4f;
+      --success-light: #e8f5ee;
+      --border: rgba(26,26,46,0.12);
+      --border-strong: rgba(26,26,46,0.22);
+      --radius: 12px;
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--paper);
+      color: var(--ink);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── Header ── */
+    header {
+      background: var(--ink);
+      color: var(--paper);
+      padding: 2rem 2rem 1.5rem;
+      position: relative;
+      overflow: hidden;
+    }
+    header::before {
+      content: '';
+      position: absolute;
+      top: -40px; right: -40px;
+      width: 180px; height: 180px;
+      border-radius: 50%;
+      background: rgba(200,75,47,0.18);
+    }
+    header::after {
+      content: '';
+      position: absolute;
+      bottom: -60px; left: 30%;
+      width: 120px; height: 120px;
+      border-radius: 50%;
+      background: rgba(200,75,47,0.1);
+    }
+    .header-inner { max-width: 720px; margin: 0 auto; position: relative; z-index: 1; }
+    .header-tag {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent);
+      background: rgba(200,75,47,0.15);
+      padding: 4px 10px;
+      border-radius: 20px;
+      margin-bottom: 0.75rem;
+    }
+    header h1 {
+      font-family: 'Fraunces', serif;
+      font-size: clamp(1.8rem, 5vw, 2.8rem);
+      font-weight: 600;
+      line-height: 1.15;
+      margin-bottom: 0.5rem;
+    }
+    header p {
+      font-size: 0.95rem;
+      color: rgba(250,249,245,0.65);
+      max-width: 480px;
+      line-height: 1.6;
+    }
+
+    /* ── Progress bar ── */
+    .progress-bar-wrap {
+      background: var(--paper-warm);
+      border-bottom: 1px solid var(--border);
+      padding: 0 2rem;
+    }
+    .progress-steps {
+      max-width: 720px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      gap: 0;
+    }
+    .step {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 1rem 0.5rem;
+      position: relative;
+      cursor: default;
+    }
+    .step::after {
+      content: '';
+      position: absolute;
+      right: 0; top: 50%;
+      transform: translateY(-50%);
+      width: 1px; height: 32px;
+      background: var(--border);
+    }
+    .step:last-child::after { display: none; }
+    .step-num {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      border: 1.5px solid var(--border-strong);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 500;
+      color: var(--ink-muted);
+      background: var(--paper);
+      margin-bottom: 4px;
+      transition: all 0.3s;
+    }
+    .step-label { font-size: 11px; color: var(--ink-muted); font-weight: 500; }
+    .step.active .step-num { background: var(--accent); border-color: var(--accent); color: #fff; }
+    .step.active .step-label { color: var(--ink); }
+    .step.done .step-num { background: var(--success); border-color: var(--success); color: #fff; }
+    .step.done .step-label { color: var(--success); }
+
+    /* ── Main ── */
+    main { flex: 1; padding: 2.5rem 2rem; }
+    .form-card {
+      max-width: 720px;
+      margin: 0 auto;
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+    }
+
+    /* ── Sections ── */
+    .section { padding: 2rem 2rem; display: none; }
+    .section.active { display: block; }
+    .section-title {
+      font-family: 'Fraunces', serif;
+      font-size: 1.4rem;
+      font-weight: 600;
+      color: var(--ink);
+      margin-bottom: 0.3rem;
+    }
+    .section-sub { font-size: 0.88rem; color: var(--ink-muted); margin-bottom: 1.75rem; }
+
+    /* ── Fields ── */
+    .field { margin-bottom: 1.25rem; }
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--ink-soft);
+      margin-bottom: 6px;
+    }
+    label span.req { color: var(--accent); margin-left: 2px; }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="number"],
+    select,
+    textarea {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1.5px solid var(--border-strong);
+      border-radius: var(--radius);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.95rem;
+      color: var(--ink);
+      background: var(--paper);
+      transition: border-color 0.2s, box-shadow 0.2s;
+      outline: none;
+    }
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(200,75,47,0.12);
+      background: #fff;
+    }
+    textarea { resize: vertical; min-height: 100px; line-height: 1.6; }
+    select { cursor: pointer; }
+
+    .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    @media (max-width: 540px) { .field-row { grid-template-columns: 1fr; } }
+
+    /* homework answer section */
+    .hw-question {
+      background: var(--paper-warm);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.25rem;
+      margin-bottom: 1rem;
+    }
+    .hw-question-label {
+      font-size: 0.92rem;
+      font-weight: 500;
+      color: var(--ink);
+      margin-bottom: 0.75rem;
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+    }
+    .q-num {
+      min-width: 24px; height: 24px;
+      border-radius: 50%;
+      background: var(--accent);
+      color: #fff;
+      font-size: 12px;
+      font-weight: 500;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+    .hw-question textarea { background: #fff; min-height: 80px; }
+
+    /* ── Divider ── */
+    .section-divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 0;
+    }
+
+    /* ── Navigation ── */
+    .nav-footer {
+      padding: 1.25rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--paper-warm);
+      border-top: 1px solid var(--border);
+    }
+    .btn {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 500;
+      padding: 10px 22px;
+      border-radius: 8px;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s;
+    }
+    .btn-ghost {
+      background: transparent;
+      color: var(--ink-muted);
+      border: 1.5px solid var(--border-strong);
+    }
+    .btn-ghost:hover { color: var(--ink); border-color: var(--ink-soft); background: var(--paper); }
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+    }
+    .btn-primary:hover { background: var(--accent-dark); }
+    .btn-primary:disabled { background: var(--ink-muted); cursor: not-allowed; }
+
+    /* ── Error message ── */
+    .field-error {
+      font-size: 12px;
+      color: var(--accent);
+      margin-top: 5px;
+      display: none;
+    }
+    .field-error.visible { display: block; }
+    input.error, select.error, textarea.error {
+      border-color: var(--accent);
+    }
+
+    /* ── Success screen ── */
+    .success-screen {
+      text-align: center;
+      padding: 3.5rem 2rem;
+      display: none;
+    }
+    .success-screen.active { display: block; }
+    .success-icon {
+      width: 64px; height: 64px;
+      border-radius: 50%;
+      background: var(--success-light);
+      margin: 0 auto 1.5rem;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .success-icon svg { width: 28px; height: 28px; stroke: var(--success); fill: none; stroke-width: 2.5; }
+    .success-screen h2 {
+      font-family: 'Fraunces', serif;
+      font-size: 1.7rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+    .success-screen p { color: var(--ink-muted); line-height: 1.6; max-width: 380px; margin: 0 auto; }
+    .submission-id {
+      display: inline-block;
+      margin-top: 1.25rem;
+      padding: 6px 16px;
+      background: var(--paper-warm);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      font-size: 12px;
+      color: var(--ink-soft);
+      font-family: monospace;
+    }
+
+    /* ── Spinner ── */
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spinner {
+      display: inline-block;
+      width: 16px; height: 16px;
+      border: 2px solid rgba(255,255,255,0.4);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      vertical-align: middle;
+      margin-right: 6px;
+    }
+
+    footer {
+      text-align: center;
+      padding: 1.5rem;
+      font-size: 12px;
+      color: var(--ink-muted);
+      border-top: 1px solid var(--border);
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <span class="header-tag">Class Submission Portal</span>
+    <h1>Homework<br>Submission</h1>
+    <p>Fill in your details and answers below. Your teacher will review and score your work in class.</p>
+  </div>
+</header>
+
+<div class="progress-bar-wrap">
+  <div class="progress-steps">
+    <div class="step active" id="step1">
+      <div class="step-num">1</div>
+      <div class="step-label">Your Info</div>
+    </div>
+    <div class="step" id="step2">
+      <div class="step-num">2</div>
+      <div class="step-label">Homework</div>
+    </div>
+    <div class="step" id="step3">
+      <div class="step-num">3</div>
+      <div class="step-label">Review</div>
+    </div>
+  </div>
+</div>
+
+<main>
+  <div class="form-card">
+
+    <!-- SECTION 1: Student Info -->
+    <div class="section active" id="section-1">
+      <p class="section-title">Student Information</p>
+      <p class="section-sub">Tell us who you are so your teacher can track your submission.</p>
+
+      <div class="field-row">
+        <div class="field">
+          <label for="firstName">First name <span class="req">*</span></label>
+          <input type="text" id="firstName" placeholder="e.g. Jane" />
+          <p class="field-error" id="err-firstName">Please enter your first name.</p>
+        </div>
+        <div class="field">
+          <label for="lastName">Last name <span class="req">*</span></label>
+          <input type="text" id="lastName" placeholder="e.g. Smith" />
+          <p class="field-error" id="err-lastName">Please enter your last name.</p>
+        </div>
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label for="studentId">Student ID <span class="req">*</span></label>
+          <input type="text" id="studentId" placeholder="e.g. STU2024001" />
+          <p class="field-error" id="err-studentId">Please enter your student ID.</p>
+        </div>
+        <div class="field">
+          <label for="email">Email address</label>
+          <input type="email" id="email" placeholder="you@school.edu" />
+        </div>
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label for="className">Class / Subject <span class="req">*</span></label>
+          <select id="className">
+            <option value="">Select your class…</option>
+            <option>Mathematics</option>
+            <option>Physics</option>
+            <option>Chemistry</option>
+            <option>Biology</option>
+            <option>History</option>
+            <option>English</option>
+            <option>Computer Science</option>
+            <option>Other</option>
+          </select>
+          <p class="field-error" id="err-className">Please select your class.</p>
+        </div>
+        <div class="field">
+          <label for="homeworkTitle">Homework title <span class="req">*</span></label>
+          <input type="text" id="homeworkTitle" placeholder="e.g. Chapter 5 Exercises" />
+          <p class="field-error" id="err-homeworkTitle">Please enter the homework title.</p>
+        </div>
+      </div>
+    </div>
+
+    <hr class="section-divider" />
+
+    <!-- SECTION 2: Answers -->
+    <div class="section" id="section-2">
+      <p class="section-title">Your Answers</p>
+      <p class="section-sub">Write your answers clearly. You can paste your work directly here.</p>
+
+      <div id="questions-container">
+        <!-- Questions are rendered by JS -->
+      </div>
+
+      <div class="field">
+        <label for="additionalNotes">Additional notes for your teacher</label>
+        <textarea id="additionalNotes" placeholder="Anything you'd like your teacher to know about your submission…"></textarea>
+      </div>
+    </div>
+
+    <hr class="section-divider" />
+
+    <!-- SECTION 3: Review -->
+    <div class="section" id="section-3">
+      <p class="section-title">Review &amp; Submit</p>
+      <p class="section-sub">Check your details before submitting. You won't be able to edit after sending.</p>
+
+      <div id="review-content" style="font-size:0.9rem; color: var(--ink-soft); line-height:1.8;">
+        <!-- filled by JS -->
+      </div>
+    </div>
+
+    <!-- SUCCESS -->
+    <div class="success-screen" id="success-screen">
+      <div class="success-icon">
+        <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
+      </div>
+      <h2>Submitted!</h2>
+      <p>Your homework has been received. Your teacher will review it and share your score in class.</p>
+      <div class="submission-id" id="sub-id">Loading…</div>
+    </div>
+
+    <hr class="section-divider" />
+
+    <!-- Navigation -->
+    <div class="nav-footer" id="nav-footer">
+      <button class="btn btn-ghost" id="btn-back" onclick="goBack()" style="visibility:hidden;">← Back</button>
+      <button class="btn btn-primary" id="btn-next" onclick="goNext()">Continue →</button>
+    </div>
+
+  </div>
+</main>
+
+<footer>
+  © <span id="yr"></span> — Homework Submission Portal &nbsp;·&nbsp; All submissions are recorded
+</footer>
+
+<script>
+  document.getElementById('yr').textContent = new Date().getFullYear();
+
+  // ── CONFIG ── Replace this URL after setting up Google Apps Script
+  const SUBMIT_URL = 'https://script.google.com/macros/s/AKfycbyaOJ2kaHGvHWoAI7-UjI_ZlIL7rX6emLkJ7IZa-7U2GmmWr4GTMpztoMZsT97l3pae/exec';
+
+  // ── Questions list — edit these to match your homework ──
+  const QUESTIONS = [
+    { id: 'q1', label: 'Question 1: Write out your answer to the first problem.' },
+    { id: 'q2', label: 'Question 2: Explain your approach and show your working.' },
+    { id: 'q3', label: 'Question 3: What conclusion did you reach?' },
+  ];
+
+  // Render questions
+  const qContainer = document.getElementById('questions-container');
+  QUESTIONS.forEach((q, i) => {
+    qContainer.innerHTML += `
+      <div class="hw-question">
+        <div class="hw-question-label">
+          <div class="q-num">${i + 1}</div>
+          <span>${q.label}</span>
+        </div>
+        <textarea id="${q.id}" placeholder="Type your answer here…"></textarea>
+      </div>`;
+  });
+
+  let currentStep = 1;
+  const totalSteps = 3;
+
+  function setStep(n) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.getElementById(`section-${n}`).classList.add('active');
+
+    document.querySelectorAll('.step').forEach((s, i) => {
+      s.classList.remove('active', 'done');
+      if (i + 1 < n) s.classList.add('done');
+      if (i + 1 === n) s.classList.add('active');
+    });
+
+    document.getElementById('btn-back').style.visibility = n === 1 ? 'hidden' : 'visible';
+    const nextBtn = document.getElementById('btn-next');
+    nextBtn.textContent = n === totalSteps ? 'Submit Homework' : 'Continue →';
+    currentStep = n;
+  }
+
+  function validateStep1() {
+    let ok = true;
+    const required = ['firstName', 'lastName', 'studentId', 'className', 'homeworkTitle'];
+    required.forEach(id => {
+      const el = document.getElementById(id);
+      const err = document.getElementById('err-' + id);
+      if (!el.value.trim()) {
+        el.classList.add('error');
+        if (err) err.classList.add('visible');
+        ok = false;
+      } else {
+        el.classList.remove('error');
+        if (err) err.classList.remove('visible');
+      }
+    });
+    return ok;
+  }
+
+  function buildReview() {
+    const data = collectData();
+    let html = `<table style="width:100%; border-collapse:collapse;">`;
+    const rows = [
+      ['Name', `${data.firstName} ${data.lastName}`],
+      ['Student ID', data.studentId],
+      ['Email', data.email || '—'],
+      ['Class', data.className],
+      ['Homework', data.homeworkTitle],
+    ];
+    rows.forEach(([k, v]) => {
+      html += `<tr><td style="padding:6px 0; color:var(--ink-muted); width:140px;">${k}</td><td style="padding:6px 0; color:var(--ink); font-weight:500;">${v}</td></tr>`;
+    });
+    html += `</table>`;
+    html += `<hr style="border:none; border-top:1px solid var(--border); margin:1rem 0;">`;
+    QUESTIONS.forEach((q, i) => {
+      const ans = document.getElementById(q.id).value.trim() || '(no answer)';
+      html += `<div style="margin-bottom:1rem;"><p style="font-size:12px; color:var(--ink-muted); margin-bottom:4px;">Question ${i + 1}</p><p style="color:var(--ink);">${ans}</p></div>`;
+    });
+    document.getElementById('review-content').innerHTML = html;
+  }
+
+  function collectData() {
+    const answers = {};
+    QUESTIONS.forEach(q => {
+      answers[q.id] = document.getElementById(q.id).value.trim();
+    });
+    return {
+      firstName: document.getElementById('firstName').value.trim(),
+      lastName: document.getElementById('lastName').value.trim(),
+      studentId: document.getElementById('studentId').value.trim(),
+      email: document.getElementById('email').value.trim(),
+      className: document.getElementById('className').value,
+      homeworkTitle: document.getElementById('homeworkTitle').value.trim(),
+      additionalNotes: document.getElementById('additionalNotes').value.trim(),
+      ...answers,
+      submittedAt: new Date().toISOString(),
+    };
+  }
+
+  function goNext() {
+    if (currentStep === 1) {
+      if (!validateStep1()) return;
+      setStep(2);
+    } else if (currentStep === 2) {
+      buildReview();
+      setStep(3);
+    } else if (currentStep === 3) {
+      submitHomework();
+    }
+  }
+
+  function goBack() {
+    if (currentStep > 1) setStep(currentStep - 1);
+  }
+
+  async function submitHomework() {
+    const btn = document.getElementById('btn-next');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span>Submitting…';
+
+    const data = collectData();
+
+    try {
+      await fetch(SUBMIT_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+    } catch (e) {
+      console.warn('Submission note:', e);
+    }
+
+    // Show success
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.getElementById('success-screen').classList.add('active');
+    document.getElementById('nav-footer').style.display = 'none';
+    document.querySelectorAll('.step').forEach(s => s.classList.add('done'));
+
+    const subId = 'HW-' + Date.now().toString(36).toUpperCase();
+    document.getElementById('sub-id').textContent = 'Submission ID: ' + subId;
+  }
+</script>
+</body>
+</html>
